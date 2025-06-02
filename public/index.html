@@ -1,0 +1,357 @@
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <title>Express</title>
+  <link rel="stylesheet" href="/stylesheets/style.css">
+  <link href="https://fonts.googleapis.com/css?family=Noto+Sans+TC:400,700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Noto Sans TC', 'Microsoft JhengHei', Arial, sans-serif;
+      background: linear-gradient(120deg, #f8fafc 0%, #e0e7ff 100%);
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+    }
+    h1 {
+      text-align: center;
+      color: #374151;
+      margin-top: 32px;
+      letter-spacing: 2px;
+      font-weight: 700;
+    }
+    #mainContent {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 32px;
+      margin-top: 48px;
+    }
+    #tradeForm {
+      background: #fff;
+      max-width: 600px;
+      min-width: 340px;
+      width: 520px;
+      margin: 0;
+      margin-top: 32px;
+      padding: 24px 28px 20px 28px;
+      border-radius: 18px;
+      box-shadow: 0 4px 24px rgba(100, 116, 139, 0.12);
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      /* 使表單呈現長方形 */
+      align-items: stretch;
+    }
+    #tradeForm .form-row {
+      display: flex;
+      flex-direction: row;
+      gap: 18px;
+      align-items: center;
+      margin-bottom: 0;
+    }
+    #tradeForm .form-row label {
+      flex: 1 1 0;
+      margin-bottom: 0;
+      white-space: nowrap;
+    }
+    #tradeForm .form-row input {
+      flex: 1 1 0;
+      min-width: 0;
+    }
+    #tradeForm label {
+      font-weight: 500;
+      color: #334155;
+      margin-bottom: 2px;
+    }
+    #tradeForm input {
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      padding: 6px 10px;
+      font-size: 1em;
+      margin-left: 8px;
+      margin-bottom: 6px;
+      width: 60%;
+      background: #f1f5f9;
+      transition: border 0.2s;
+    }
+    #tradeForm input:focus {
+      border: 1.5px solid #6366f1;
+      outline: none;
+      background: #fff;
+    }
+    #tradeForm button {
+      margin-top: 12px;
+      background: linear-gradient(90deg, #6366f1 0%, #60a5fa 100%);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 0;
+      font-size: 1.1em;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    #tradeForm button:hover {
+      background: linear-gradient(90deg, #818cf8 0%, #38bdf8 100%);
+    }
+    #resultMsg {
+      text-align: center;
+      color: #16a34a;
+      font-weight: 600;
+      margin: 12px 0 0 0;
+      min-height: 24px;
+    }
+    #dataTypeSelect, label[for="dataTypeSelect"] {
+      display: inline-block;
+      font-size: 1.1em;
+      margin: 0 8px 0 0;
+      color: #6366f1;
+      font-weight: 700;
+    }
+    #dataTypeSelect {
+      border-radius: 6px;
+      border: 1px solid #cbd5e1;
+      padding: 4px 12px;
+      background: #f1f5f9;
+      font-weight: 500;
+      margin-bottom: 10px;
+      transition: border 0.2s;
+    }
+    #dataTypeSelect:focus {
+      border: 1.5px solid #6366f1;
+      outline: none;
+      background: #fff;
+    }
+    #chartArea {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      position: relative;
+    }
+    #chartHeader {
+      width: 100%;
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+    #chartHeader label[for="dataTypeSelect"] {
+      font-size: 1.65em;
+      /* 1.1em * 1.5 = 1.65em */
+      margin-right: 16px;
+      color: #6366f1;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+    }
+    #dataTypeSelect {
+      /* 讓選單與標籤垂直置中 */
+      height: 2.2em;
+      font-size: 1.1em;
+      vertical-align: middle;
+      display: flex;
+      align-items: center;
+    }
+    #tradeChart {
+      display: block;
+      margin: 0;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 2px 12px rgba(100, 116, 139, 0.10);
+      padding: 12px;
+      max-width: 1575px; /* 1050px * 1.5 */
+      width: 1350px;      /* 900px * 1.5 */
+      height: 675px;     /* 450px * 1.5 */
+      /* 新增：讓canvas置中 */
+      left: 0;
+      right: 0;
+    }
+    #quotesTable {
+      margin: 32px auto 0 auto;
+      border-collapse: collapse;
+      width: 90%;
+      background: #fff;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 2px 12px rgba(100, 116, 139, 0.10);
+    }
+    #quotesTable th, #quotesTable td {
+      padding: 10px 8px;
+      text-align: center;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    #quotesTable th {
+      background: #6366f1;
+      color: #fff;
+      font-weight: 700;
+      letter-spacing: 1px;
+    }
+    #quotesTable tr:last-child td {
+      border-bottom: none;
+    }
+    @media (max-width: 1100px) {
+      #mainContent {
+        flex-direction: column;
+        align-items: center;
+        gap: 16px;
+      }
+      #tradeChart {
+        width: 98vw !important;
+        max-width: 98vw;
+      }
+    }
+    @media (max-width: 700px) {
+      #tradeForm, #tradeChart, #quotesTable {
+        max-width: 98vw;
+        width: 98vw;
+        font-size: 0.98em;
+      }
+      #tradeChart {
+        width: 98vw !important;
+      }
+    }
+  </style>
+</head>
+
+<body>
+<h1>臺北市家禽及魚類交易情形</h1>
+<div id="mainContent">
+  <div id="chartArea">
+    <div id="chartHeader">
+      <label for="dataTypeSelect">選擇資料類型：</label>
+      <select id="dataTypeSelect">
+        <option value="chicken">雞</option>
+        <option value="duck">鴨</option>
+        <option value="fish">魚</option>
+      </select>
+    </div>
+    <canvas id="tradeChart" width="1350" height="675"></canvas>
+  </div>
+</div>
+<table id="quotesTable" border="1" style="margin-top:20px;">
+  <thead>
+  <tr>
+    <th>統計日期(Year)</th>
+    <th>雞/交易量[公噸]</th>
+    <th>雞/平均價格[元/公斤]</th>
+    <th>鴨/交易量[公噸]</th>
+    <th>鴨/平均價格[元/公斤]</th>
+    <th>魚/交易量[公噸]</th>
+    <th>魚/平均價格[元/公斤]</th>
+  </tr>
+  </thead>
+  <tbody></tbody>
+</table>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  let chartInstance = null;
+
+  // 取得並顯示 PoultryAndFishTrade 所有資料
+  async function loadQuotes() {
+    const res = await fetch('http://localhost:3000/api/quotes');
+    const data = await res.json();
+    renderTable(data);
+    renderChart(data, document.getElementById('dataTypeSelect').value);
+  }
+
+  function renderTable(data) {
+    const tbody = document.querySelector('#quotesTable tbody');
+    tbody.innerHTML = '';
+    data.forEach(row => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+          <td>${row.Year}</td>
+          <td>${row.ChickenVolumeTons}</td>
+          <td>${row.ChickenAvgPricePerKg}</td>
+          <td>${row.DuckVolumeTons}</td>
+          <td>${row.DuckAvgPricePerKg}</td>
+          <td>${row.FishVolumeTons}</td>
+          <td>${row.FishAvgPricePerKg}</td>
+        `;
+      tbody.appendChild(tr);
+    });
+  }
+
+  function renderChart(data, type) {
+    let labels = data.map(row => row.Year);
+    let volume = [];
+    let price = [];
+    let labelVolume = '';
+    let labelPrice = '';
+    let bgColorVolume = '';
+    let bgColorPrice = '';
+    if (type === 'chicken') {
+      volume = data.map(row => row.ChickenVolumeTons);
+      price = data.map(row => row.ChickenAvgPricePerKg);
+      labelVolume = '雞/交易量[公噸]';
+      labelPrice = '雞/平均價格[元/公斤]';
+      bgColorVolume = 'rgba(255, 99, 132, 0.5)';
+      bgColorPrice = 'rgba(255, 205, 86, 0.5)';
+    } else if (type === 'duck') {
+      volume = data.map(row => row.DuckVolumeTons);
+      price = data.map(row => row.DuckAvgPricePerKg);
+      labelVolume = '鴨/交易量[公噸]';
+      labelPrice = '鴨/平均價格[元/公斤]';
+      bgColorVolume = 'rgba(54, 162, 235, 0.5)';
+      bgColorPrice = 'rgba(75, 192, 192, 0.5)';
+    } else if (type === 'fish') {
+      volume = data.map(row => row.FishVolumeTons);
+      price = data.map(row => row.FishAvgPricePerKg);
+      labelVolume = '魚/交易量[公噸]';
+      labelPrice = '魚/平均價格[元/公斤]';
+      bgColorVolume = 'rgba(153, 102, 255, 0.5)';
+      bgColorPrice = 'rgba(201, 203, 207, 0.5)';
+    }
+    const ctx = document.getElementById('tradeChart').getContext('2d');
+    if (chartInstance) chartInstance.destroy();
+    chartInstance = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: labels,
+        datasets: [
+          {
+            label: labelVolume,
+            data: volume,
+            backgroundColor: bgColorVolume,
+            yAxisID: 'y',
+          },
+          {
+            label: labelPrice,
+            data: price,
+            backgroundColor: bgColorPrice,
+            yAxisID: 'y1',
+          }
+        ]
+      },
+      options: {
+        responsive: false,
+        scales: {
+          y: {
+            type: 'linear',
+            position: 'left',
+            title: { display: true, text: '交易量[公噸]' }
+          },
+          y1: {
+            type: 'linear',
+            position: 'right',
+            title: { display: true, text: '平均價格[元/公斤]' },
+            grid: { drawOnChartArea: false }
+          }
+        }
+      }
+    });
+  }
+
+  document.getElementById('dataTypeSelect').addEventListener('change', async function() {
+    const res = await fetch('http://localhost:3000/api/quotes');
+    const data = await res.json();
+    renderChart(data, this.value);
+  });
+
+  loadQuotes();
+</script>
+</body>
+
+</html>
